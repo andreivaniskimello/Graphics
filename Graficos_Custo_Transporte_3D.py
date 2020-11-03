@@ -344,7 +344,8 @@ Data_Total = np.c_[DepthMeters_Total,Speed_Total,Custo_Total]   #Create One big 
 # regular grid covering the domain of the data
 mn = np.min(Data_Total, axis=0)     # Minima along the first axis (mn is a (1 x 3) array)
 mx = np.max(Data_Total, axis=0)     # Maxima along the first axis (mx is a (1 x 3) array)
-X,Y = np.meshgrid(np.linspace(mn[0], mx[0], 20), np.linspace(mn[1], mx[1], 20)) #meshgrid: create a retangular array from two input vectors with all pair combinations between them. Output is two 2D arrays.
+#X,Y = np.meshgrid(np.linspace(mn[0], mx[0], 20), np.linspace(mn[1], mx[1], 20)) #meshgrid: create a retangular array from two input vectors with all pair combinations between them. Output is two 2D arrays.
+X,Y = np.meshgrid(np.linspace(mn[0], mx[0], 20), np.linspace(mn[1], 0.8, 20)) #meshgrid: create a retangular array from two input vectors with all pair combinations between them. Output is two 2D arrays.
 XX = X.flatten()    #flatten: convert n-D array into 1D array
 YY = Y.flatten()
 
@@ -377,21 +378,22 @@ Parameters_2, Error_2, _, _ = scipy.linalg.lstsq(A_2, Data_Total[:, 2])    #scip
 Z_2 = np.dot(np.c_[np.ones(XX.shape), XX, YY, XX * YY, XX ** 2, YY ** 2], Parameters_2).reshape(X.shape)
 
 
-#Minimum Point Of Surface
+#Minimum Point Of Surface 2º Order Polynomial
 xmin_Z_2, ymin_Z_2 = np.unravel_index(np.argmin(Z_2), Z_2.shape)
 minimum_Z_2 = (X[xmin_Z_2,ymin_Z_2], Y[xmin_Z_2,ymin_Z_2], Z_2.min())
 minimum_Z_2 = np.asarray(minimum_Z_2)
+
+#Maximum Point Of Surface 2º Order Polynomial
+xmax_Z_2, ymax_Z_2 = np.unravel_index(np.argmax(Z_2), Z_2.shape)
+maximum_Z_2 = (X[xmax_Z_2,ymax_Z_2], Y[xmax_Z_2,ymax_Z_2], Z_2.max())
+maximum_Z_2 = np.asarray(maximum_Z_2)
+
 # Arrays for plotting,
 # first row for points in xplane, last row for points in 3D space
 #Ami = np.array([mi]*4)
 #for i, v in enumerate([4,4,20]):
 #    Ami[i,i] = v
 
-
-#print('Parameters 1º Order Polynomial')
-#print(Parameters_1)
-#print ('Error Fit 1º Order Polynomial')
-#print(Error_1)
 
 #print('Parameters 2º Order Polynomial')
 #print(Parameters_2)
@@ -406,67 +408,101 @@ Data_Total_PaveiSurface = np.c_[Gravity_Total, Speed_Total]
 # regular grid covering the domain of the data
 mn_Pavei = np.min(Data_Total_PaveiSurface , axis=0)     # Minima along the first axis (mn is a (1 x 3) array)
 mx_Pavei = np.max(Data_Total_PaveiSurface , axis=0)     # Maxima along the first axis (mx is a (1 x 3) array)
-X_Pavei,Y_Pavei = np.meshgrid(np.linspace(mn_Pavei[0], mx_Pavei[0], 20), np.linspace(mn_Pavei[1], mx_Pavei[1], 20)) #meshgrid: create a retangular array from two input vectors with all pair combinations between them. Output is two 2D arrays.
+#X_Pavei,Y_Pavei = np.meshgrid(np.linspace(mn_Pavei[0], mx_Pavei[0], 20), np.linspace(mn_Pavei[1], mx_Pavei[1], 20)) #meshgrid: create a retangular array from two input vectors with all pair combinations between them. Output is two 2D arrays.
+X_Pavei,Y_Pavei = np.meshgrid(np.linspace(mn_Pavei[0], mx_Pavei[0], 20), np.linspace(mn_Pavei[1], 0.8, 20)) #meshgrid: create a retangular array from two input vectors with all pair combinations between them. Output is two 2D arrays.
 XX_Pavei = X_Pavei.flatten()    #flatten: convert n-D array into 1D array
 YY_Pavei = Y_Pavei.flatten()
 
 Z_Pavei = Custo_Pavei(YY_Pavei, XX_Pavei).reshape(X.shape)
 
-#Minimum Point Of Surface
+#Minimum Point Of Surface Pavei
 xmin_Z_Pavei, ymin_Z_Pavei = np.unravel_index(np.argmin(Z_Pavei), Z_Pavei.shape)
 minimum_Z_Pavei = (X[xmin_Z_Pavei,ymin_Z_Pavei], Y[xmin_Z_Pavei,ymin_Z_Pavei], Z_Pavei.min())
 minimum_Z_Pavei = np.asarray(minimum_Z_Pavei)
 
+#Maximum Point Of Surface Pavei
+xmax_Z_Pavei, ymax_Z_Pavei = np.unravel_index(np.argmax(Z_Pavei), Z_Pavei.shape)
+maximum_Z_Pavei = (X[xmax_Z_Pavei,ymax_Z_Pavei], Y[xmax_Z_Pavei,ymax_Z_Pavei], Z_Pavei.max())
+maximum_Z_Pavei = np.asarray(maximum_Z_Pavei)
+
+
 #fig, ax = plt.subplots(2,2, sharex=True, sharey= 'row')
 #Create figure
-#fig = plt.figure()
-#ax = fig.gca(projection='3d')
-#fig.canvas.set_window_title('Cost of Transport x Speed x Depth in Meters (MEAN)')
-
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+fig.canvas.set_window_title('Cost of Transport x Speed x Depth in Meters (MEAN)')
+ax.tick_params(labelsize=16)
 #X axis
-#plt.xticks(np.arange(min(DepthMeters_Total), max(DepthMeters_Total)+1, 0.2))
+plt.xticks(np.arange(min(DepthMeters_Total), max(DepthMeters_Total)+1, 0.2))
 #Y axis
 #yticks = [2, 3, 4, 5]
 #ylabels = ["0.2 m/s", "0.4 m/s", "0.6 m/s","0.8 m/s"]
+ax.set_ylim(0.1, 0.8)
 #plt.yticks(yticks, ylabels)
-#plt.yticks(np.arange(min(Speed_Total), max(Speed_Total)+1, 0.2))
+plt.yticks(np.arange(min(Speed_Total), max(Speed_Total)+0.2, 0.2))
 #Z axis
-#ax.set_zlim(0, 15)
-#ax.zaxis.set_major_locator(LinearLocator(10))
-#ax.zaxis.set_major_formatter(FormatStrFormatter('%.i'))
+ax.set_zlim(0, 14)
+ax.zaxis.set_major_locator(LinearLocator(5))
+ax.zaxis.set_major_formatter(FormatStrFormatter('%.i'))
 
-#ax.set_xlabel('Depth in Meters (m)',fontsize=12, fontweight='bold')
-#ax.set_ylabel('Speed (m/s)',fontsize=12, fontweight='bold')
-#ax.set_zlabel('Cost of Transport (J/kg/m)',fontsize=12, fontweight='bold')
-#fig.suptitle('Cost of Transport: Water 2º Order Surface Fit vs. Pavei & Minetti Hypogravity (2016)', fontsize=14, fontweight='bold')
+ax.xaxis.labelpad=30
+ax.yaxis.labelpad=30
+ax.zaxis.labelpad=20
+
+ax.set_xlabel('Depth (m)',fontsize=16, fontweight='bold')
+ax.set_ylabel('Speed (m/s)',fontsize=16, fontweight='bold')
+ax.set_zlabel('Cost of Transport (J/kg/m)',fontsize=16, fontweight='bold')
+fig.suptitle('Cost of Transport Surface: Water vs. Dry Land Hypogravity (Pavei & Minetti, 2016)', fontsize=14, fontweight='bold')
 
 #Scatter Plot and Surface Specification
 c = (Custo_Total)
 s = 200
-#ax.scatter(DepthMeters_Total,Speed_Total,Custo_Total,s=s, c=c, alpha=1.0, cmap='autumn', marker='p', label='Cost of Transport per Condition')
+ax.scatter(DepthMeters_Total,Speed_Total,Custo_Total,s=s, c=c, alpha=1.0, cmap='autumn', marker='p', label='Cost of Transport per Condition')
 
 #1º Order Polynomial Surface
 #ax.plot_surface(X, Y, Z_1, rstride=1, cstride=1, alpha=0.8, cmap='autumn', label = '1º Order Fit')
 #ax.scatter(minimum_Z_1[0], minimum_Z_1[1], minimum_Z_1[2], color='black', s=500, marker='*')
 
 #2º Order Polynomial Surface
-#ax.plot_surface(X, Y, Z_2, rstride=1, cstride=1, alpha=0.8, cmap='autumn', label = '2º Order Fit')
-#ax.scatter(minimum_Z_2[0], minimum_Z_2[1], minimum_Z_2[2], color='black', s=500, marker='*')
+ax.plot_surface(X, Y, Z_2, rstride=1, cstride=1, alpha=0.8, cmap='autumn', label = '2º Order Fit')
+ax.scatter(minimum_Z_2[0], minimum_Z_2[1], minimum_Z_2[2], color='steelblue', s=1000, marker='d')
+ax.scatter(maximum_Z_2[0], maximum_Z_2[1], maximum_Z_2[2], color='darkorange', s=1000, marker='d')
 
 #print(X[1,1])
 #print(Y[1,1])
-print(Z_2[:,1])
+#print(Z_2[:,1])
 #print(X_Pavei[1,1])
 #print(np.flip(X)[1,1])
-print(Z_Pavei[:,1])
+#print(Z_Pavei[:,1])
 
 #Pavei Cost function
-#ax.plot_surface(np.flip(X), Y_Pavei, Z_Pavei, rstride=1, cstride=1, alpha=0.6, cmap='winter', label = 'Pavei Cost')
-#ax.scatter(minimum_Z_Pavei[0], minimum_Z_Pavei[1], minimum_Z_Pavei[2], color='black', s=500, marker='d')
+ax.plot_surface(np.flip(X), Y_Pavei, Z_Pavei, rstride=1, cstride=1, alpha=0.6, cmap='winter', label = 'Pavei Cost')
+ax.scatter(minimum_Z_Pavei[0], minimum_Z_Pavei[1], minimum_Z_Pavei[2], color='steelblue', s=2000, marker='*')
+ax.scatter(maximum_Z_Pavei[0], maximum_Z_Pavei[1], maximum_Z_Pavei[2], color='darkorange', s=2000, marker='*')
+'''
+print('Minimum C Pavei')
+print(minimum_Z_Pavei[0])
+print(minimum_Z_Pavei[1])
+print(minimum_Z_Pavei[2])
 
+print('Maximum C Pavei')
+print(maximum_Z_Pavei[0])
+print(maximum_Z_Pavei[1])
+print(maximum_Z_Pavei[2])
+
+print('Minimum C Water')
+print(minimum_Z_2[0])
+print(minimum_Z_2[1])
+print(minimum_Z_2[2])
+
+print('Maximum C Water')
+print(maximum_Z_2[0])
+print(maximum_Z_2[1])
+print(maximum_Z_2[2])
+'''
 #Error bar of COST TRANSPORT
-#for i in np.arange(0, len(Custo_Total)):
-#    ax.plot((DepthMeters_Total[i],DepthMeters_Total[i]), (Speed_Total[i],Speed_Total[i]), (Custo_Total[i] + Custo_Total_CI[i], Custo_Total[i] - Custo_Total_CI[i]), "k-")
+for i in np.arange(0, len(Custo_Total)):
+    ax.plot((DepthMeters_Total[i],DepthMeters_Total[i]), (Speed_Total[i],Speed_Total[i]), (Custo_Total[i] + Custo_Total_CI[i], Custo_Total[i] - Custo_Total_CI[i]), "k-")
 
 #VAS Points of Each Depth and Error Bar respective
 svas = 300
@@ -482,44 +518,66 @@ VAS_Quadril_Z_2 = (Parameters_2[5]*VAS_Quadril**2) + (Parameters_2[4]* DepthMete
 VAS_Umbigo_Z_2 = (Parameters_2[5]*VAS_Umbigo**2) + (Parameters_2[4]* DepthMeters_Total[9]**2) + (Parameters_2[3]*VAS_Umbigo* DepthMeters_Total[9]) + (Parameters_2[2]*VAS_Umbigo) + (Parameters_2[1]*DepthMeters_Total[9]) + (Parameters_2[0])
 VAS_Xifoide_Z_2 = (Parameters_2[5]*VAS_Xifoide**2) + (Parameters_2[4]* DepthMeters_Total[13]**2) + (Parameters_2[3]*VAS_Xifoide* DepthMeters_Total[13]) + (Parameters_2[2]*VAS_Xifoide) + (Parameters_2[1]*DepthMeters_Total[13]) + (Parameters_2[0])
 
+print('VAS Cost Joelho')
+print(VAS_Joelho_Z_2)
+print(VAS_Joelho)
+print(DepthMeters_Total[1])
+
+print('VAS Cost Quadril')
+print(VAS_Quadril_Z_2)
+print(VAS_Quadril)
+print(DepthMeters_Total[5])
+
+print('VAS Cost Umbigo')
+print(VAS_Umbigo_Z_2)
+print(VAS_Umbigo)
+print(DepthMeters_Total[9])
+
+print('VAS Cost Xifoide')
+print(VAS_Xifoide_Z_2)
+print(VAS_Xifoide)
+print(DepthMeters_Total[13])
+
 #VAS MATRIX FOR LINE PLOT CONECTING EACH VAS POINT
 VAS_Line_Plot_Depth = np.array([DepthMeters_Total[1], DepthMeters_Total[5], DepthMeters_Total[9], DepthMeters_Total[13]])
 VAS_Line_Plot_VAS = np.array([VAS_Joelho, VAS_Quadril, VAS_Umbigo, VAS_Xifoide])
 VAS_Line_Plot_Z_1 = np.array([VAS_Joelho_Z_1, VAS_Quadril_Z_1, VAS_Umbigo_Z_1, VAS_Xifoide_Z_1])
 VAS_Line_Plot_Z_2 = np.array([VAS_Joelho_Z_2, VAS_Quadril_Z_2, VAS_Umbigo_Z_2, VAS_Xifoide_Z_2])
 
-#ax.scatter(DepthMeters_Total[1],VAS_Joelho, VAS_Joelho_Z_2,  color='black', s=svas, marker='o', label = 'Self-Selected Speed per Depth')
-#ax.plot((DepthMeters_Total[1], DepthMeters_Total[1]), [VAS_Joelho + VAS_Joelho_CI, VAS_Joelho - VAS_Joelho_CI], [VAS_Joelho_Z_2, VAS_Joelho_Z_2], "k-")
+ax.scatter(DepthMeters_Total[1],VAS_Joelho, VAS_Joelho_Z_2,  color='black', s=svas, marker='o', label = 'Self-Selected Speed per Depth')
+ax.plot((DepthMeters_Total[1], DepthMeters_Total[1]), [VAS_Joelho + VAS_Joelho_CI, VAS_Joelho - VAS_Joelho_CI], [VAS_Joelho_Z_2, VAS_Joelho_Z_2], "k-")
 
-#ax.scatter(DepthMeters_Total[5],VAS_Quadril, VAS_Quadril_Z_2,  color='black', s=svas, marker='o')
-#ax.plot((DepthMeters_Total[5], DepthMeters_Total[5]), [VAS_Quadril + VAS_Quadril_CI, VAS_Quadril - VAS_Quadril_CI], [VAS_Quadril_Z_2, VAS_Quadril_Z_2], "k-")
+ax.scatter(DepthMeters_Total[5],VAS_Quadril, VAS_Quadril_Z_2,  color='black', s=svas, marker='o')
+ax.plot((DepthMeters_Total[5], DepthMeters_Total[5]), [VAS_Quadril + VAS_Quadril_CI, VAS_Quadril - VAS_Quadril_CI], [VAS_Quadril_Z_2, VAS_Quadril_Z_2], "k-")
 
-#ax.scatter(DepthMeters_Total[9],VAS_Umbigo, VAS_Umbigo_Z_2,  color='black', s=svas, marker='o')
-#ax.plot((DepthMeters_Total[9], DepthMeters_Total[9]), [VAS_Umbigo + VAS_Umbigo_CI, VAS_Umbigo - VAS_Umbigo_CI], [VAS_Umbigo_Z_2, VAS_Umbigo_Z_2], "k-")
+ax.scatter(DepthMeters_Total[9],VAS_Umbigo, VAS_Umbigo_Z_2,  color='black', s=svas, marker='o')
+ax.plot((DepthMeters_Total[9], DepthMeters_Total[9]), [VAS_Umbigo + VAS_Umbigo_CI, VAS_Umbigo - VAS_Umbigo_CI], [VAS_Umbigo_Z_2, VAS_Umbigo_Z_2], "k-")
 
-#ax.scatter(DepthMeters_Total[13],VAS_Xifoide, VAS_Xifoide_Z_2,  color='black', s=svas, marker='o')
-#ax.plot((DepthMeters_Total[13], DepthMeters_Total[13]), [VAS_Xifoide + VAS_Xifoide_CI, VAS_Xifoide - VAS_Xifoide_CI], [VAS_Xifoide_Z_2, VAS_Xifoide_Z_2], "k-")
+ax.scatter(DepthMeters_Total[13],VAS_Xifoide, VAS_Xifoide_Z_2,  color='black', s=svas, marker='o')
+ax.plot((DepthMeters_Total[13], DepthMeters_Total[13]), [VAS_Xifoide + VAS_Xifoide_CI, VAS_Xifoide - VAS_Xifoide_CI], [VAS_Xifoide_Z_2, VAS_Xifoide_Z_2], "k-")
 
-#ax.plot(VAS_Line_Plot_Depth, VAS_Line_Plot_VAS,VAS_Line_Plot_Z_2, '--', color = 'black',linewidth = 2.5)
+ax.plot(VAS_Line_Plot_Depth, VAS_Line_Plot_VAS,VAS_Line_Plot_Z_2, '--', color = 'black',linewidth = 2.5)
 
 #ax.legend(frameon=False)
 
 #Animation Section: create the rotation animation and Save .mp4 file
-#for angle in range(0, 360):
-#    ax.view_init(20, angle)
-#    plt.draw()
-#    plt.pause(.001)
+'''
+for angle in range(0, 360):
+   ax.view_init(20, angle)
+   plt.draw()
+   plt.pause(.001)
 
-#def rotate(angle):
- #      ax.view_init(10, azim=angle)
+def rotate(angle):
+       ax.view_init(10, azim=angle)
 
-#rot_animation = animation.FuncAnimation(fig, rotate, frames=np.arange(0, 362, 2), interval=250)
+rot_animation = animation.FuncAnimation(fig, rotate, frames=np.arange(0, 362, 2), interval=250)
 
 Writer = animation.writers['ffmpeg']
 writer = Writer(metadata=dict(artist='Me'), bitrate=-1)
-#rot_animation.save("C:/Users/andre/Documents/Mestrado/Projetos Pesquisa/Projeto Marcha Água/Coletas/Data/Planilhas Gráficos Python/Grafico_Cost_Depth_Velocidade_SURFACE2ºOrder_PaveiMinetti_Video.mp4", writer=writer)
+rot_animation.save("C:/Users/andre/Documents/Mestrado/Projetos Pesquisa/Projeto Marcha Água/Coletas/Data/Planilhas Gráficos Python/Grafico_Cost_Depth_Velocidade_SURFACE2ºOrder_PaveiMinetti_Video.mp4", writer=writer)
+'''
 
-
+plt.show()
 
 
 
@@ -581,21 +639,21 @@ minimum_Z_Force_2 = np.asarray(minimum_Z_Force_2)
 #    Ami[i,i] = v
 
 
-print('Parameters 1º Order Polynomial Force')
-print(Parameters_Force_1)
-print ('Error Fit 1º Order Polynomial Force')
-print(Error_Force_1)
+#print('Parameters 1º Order Polynomial Force')
+#print(Parameters_Force_1)
+#print ('Error Fit 1º Order Polynomial Force')
+#print(Error_Force_1)
 
-print('Parameters 2º Order Polynomial Force')
-print(Parameters_Force_2)
-print ('Error Fit 2º Order Polynomial Force')
-print(Error_Force_2)
+#print('Parameters 2º Order Polynomial Force')
+#print(Parameters_Force_2)
+#print ('Error Fit 2º Order Polynomial Force')
+#print(Error_Force_2)
 
 
 #Create figure
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-fig.canvas.set_window_title('External Force x Speed x Depth in Meters (MEAN)')
+#fig = plt.figure()
+#ax = fig.gca(projection='3d')
+#fig.canvas.set_window_title('External Force x Speed x Depth in Meters (MEAN)')
 
 #X axis
 #plt.xticks(np.arange(min(DepthMeters_Total), max(DepthMeters_Total)+1, 0.2))
@@ -605,37 +663,37 @@ fig.canvas.set_window_title('External Force x Speed x Depth in Meters (MEAN)')
 #plt.yticks(yticks, ylabels)
 #plt.yticks(np.arange(min(Speed_Total), max(Speed_Total)+1, 0.2))
 #Z axis
-ax.set_zlim(150, 1000)
-ax.zaxis.set_ticks(np.arange(100,1000,200))
+#ax.set_zlim(150, 1000)
+
 #ax.zaxis.set_major_locator(LinearLocator(20))
 #ax.zaxis.set_major_formatter(FormatStrFormatter('%.i'))
 
-ax.set_xlabel('Depth in Meters (m)',fontsize=12, fontweight='bold')
-ax.set_ylabel('Speed (m/s)',fontsize=12, fontweight='bold')
-ax.set_zlabel('External Force (N))',fontsize=12, fontweight='bold')
-fig.suptitle('External Force and 2º Order Surface Fit', fontsize=16, fontweight='bold')
+#ax.set_xlabel('Depth in Meters (m)',fontsize=12, fontweight='bold')
+#ax.set_ylabel('Speed (m/s)',fontsize=12, fontweight='bold')
+#ax.set_zlabel('External Force (N))',fontsize=12, fontweight='bold')
+#fig.suptitle('External Force and 2º Order Surface Fit', fontsize=16, fontweight='bold')
 
 #Scatter Plot and Surface Specification
-c = (Custo_Total)
-s = 200
-ax.scatter(DepthMeters_Total,Speed_Total,TOTAL_SUM_FORCES_Total,s=s, c=c, alpha=1.0, cmap='autumn', marker='p', label='External Force per Condition')
+#c = (Custo_Total)
+#s = 200
+#ax.scatter(DepthMeters_Total,Speed_Total,TOTAL_SUM_FORCES_Total,s=s, c=c, alpha=1.0, cmap='autumn', marker='p', label='External Force per Condition')
 
 #1º Order Polynomial Surface
 #ax.plot_surface(X_Force, Y_Force, Z_Force_1, rstride=1, cstride=1, alpha=0.8, cmap='autumn', label = '1º Order Fit')
 #ax.scatter(minimum_Z_Force_1[0], minimum_Z_Force_1[1], minimum_Z_Force_1[2], color='black', s=500, marker='*')
 
 #2º Order Polynomial Surface
-ax.plot_surface(X_Force, Y_Force, Z_Force_2, rstride=1, cstride=1, alpha=0.8, cmap='autumn', label = '2º Order Fit')
-ax.scatter(minimum_Z_Force_2[0], minimum_Z_Force_2[1], minimum_Z_Force_2[2], color='black', s=500, marker='*')
+#ax.plot_surface(X_Force, Y_Force, Z_Force_2, rstride=1, cstride=1, alpha=0.8, cmap='autumn', label = '2º Order Fit')
+#ax.scatter(minimum_Z_Force_2[0], minimum_Z_Force_2[1], minimum_Z_Force_2[2], color='black', s=500, marker='*')
 
 
 
 #Error bar of EXTERNAL FORCE
-for i in np.arange(0, len(TOTAL_SUM_FORCES_Total)):
-    ax.plot((DepthMeters_Total[i],DepthMeters_Total[i]), (Speed_Total[i],Speed_Total[i]), (TOTAL_SUM_FORCES_Total[i] + TOTAL_SUM_FORCES_Total_CI[i], TOTAL_SUM_FORCES_Total[i] - TOTAL_SUM_FORCES_Total_CI[i]), "k-")
+#for i in np.arange(0, len(TOTAL_SUM_FORCES_Total)):
+#    ax.plot((DepthMeters_Total[i],DepthMeters_Total[i]), (Speed_Total[i],Speed_Total[i]), (TOTAL_SUM_FORCES_Total[i] + TOTAL_SUM_FORCES_Total_CI[i], TOTAL_SUM_FORCES_Total[i] - TOTAL_SUM_FORCES_Total_CI[i]), "k-")
 
 #VAS Points of Each Depth and Error Bar respective
-svas = 300
+#svas = 300
 
 # Find Z-Position of each VAS Point at Surface Fit
 VAS_Joelho_Z_Force_1 = (Parameters_Force_1[1]*VAS_Joelho) + (Parameters_Force_1[0]*DepthMeters_Total[1]) + (Parameters_Force_1[2])
@@ -656,36 +714,36 @@ VAS_Line_Plot_Z_Force_2 = np.array([VAS_Joelho_Z_Force_2, VAS_Quadril_Z_Force_2,
 
 
 #VAS POINTS PER DEPTH PLOT
-ax.scatter(DepthMeters_Total[1],VAS_Joelho, VAS_Joelho_Z_Force_2,  color='black', s=svas, marker='o', label = 'Self-Selected Speed per Depth')
-ax.plot((DepthMeters_Total[1], DepthMeters_Total[1]), [VAS_Joelho + VAS_Joelho_CI, VAS_Joelho - VAS_Joelho_CI], [VAS_Joelho_Z_Force_2, VAS_Joelho_Z_Force_2], "k-")
+#ax.scatter(DepthMeters_Total[1],VAS_Joelho, VAS_Joelho_Z_Force_2,  color='black', s=svas, marker='o', label = 'Self-Selected Speed per Depth')
+#ax.plot((DepthMeters_Total[1], DepthMeters_Total[1]), [VAS_Joelho + VAS_Joelho_CI, VAS_Joelho - VAS_Joelho_CI], [VAS_Joelho_Z_Force_2, VAS_Joelho_Z_Force_2], "k-")
 
-ax.scatter(DepthMeters_Total[5],VAS_Quadril, VAS_Quadril_Z_Force_2,  color='black', s=svas, marker='o')
-ax.plot((DepthMeters_Total[5], DepthMeters_Total[5]), [VAS_Quadril + VAS_Quadril_CI, VAS_Quadril - VAS_Quadril_CI], [VAS_Quadril_Z_Force_2, VAS_Quadril_Z_Force_2], "k-")
+#ax.scatter(DepthMeters_Total[5],VAS_Quadril, VAS_Quadril_Z_Force_2,  color='black', s=svas, marker='o')
+#ax.plot((DepthMeters_Total[5], DepthMeters_Total[5]), [VAS_Quadril + VAS_Quadril_CI, VAS_Quadril - VAS_Quadril_CI], [VAS_Quadril_Z_Force_2, VAS_Quadril_Z_Force_2], "k-")
 
-ax.scatter(DepthMeters_Total[9],VAS_Umbigo, VAS_Umbigo_Z_Force_2,  color='black', s=svas, marker='o')
-ax.plot((DepthMeters_Total[9], DepthMeters_Total[9]), [VAS_Umbigo + VAS_Umbigo_CI, VAS_Umbigo - VAS_Umbigo_CI], [VAS_Umbigo_Z_Force_2, VAS_Umbigo_Z_Force_2], "k-")
+#ax.scatter(DepthMeters_Total[9],VAS_Umbigo, VAS_Umbigo_Z_Force_2,  color='black', s=svas, marker='o')
+#ax.plot((DepthMeters_Total[9], DepthMeters_Total[9]), [VAS_Umbigo + VAS_Umbigo_CI, VAS_Umbigo - VAS_Umbigo_CI], [VAS_Umbigo_Z_Force_2, VAS_Umbigo_Z_Force_2], "k-")
 
-ax.scatter(DepthMeters_Total[13],VAS_Xifoide, VAS_Xifoide_Z_Force_2,  color='black', s=svas, marker='o')
-ax.plot((DepthMeters_Total[13], DepthMeters_Total[13]), [VAS_Xifoide + VAS_Xifoide_CI, VAS_Xifoide - VAS_Xifoide_CI], [VAS_Xifoide_Z_Force_2, VAS_Xifoide_Z_Force_2], "k-")
+#ax.scatter(DepthMeters_Total[13],VAS_Xifoide, VAS_Xifoide_Z_Force_2,  color='black', s=svas, marker='o')
+#ax.plot((DepthMeters_Total[13], DepthMeters_Total[13]), [VAS_Xifoide + VAS_Xifoide_CI, VAS_Xifoide - VAS_Xifoide_CI], [VAS_Xifoide_Z_Force_2, VAS_Xifoide_Z_Force_2], "k-")
 
-ax.plot(VAS_Line_Plot_Depth, VAS_Line_Plot_VAS,VAS_Line_Plot_Z_Force_2, '--', color = 'black',linewidth = 2.5)
+#ax.plot(VAS_Line_Plot_Depth, VAS_Line_Plot_VAS,VAS_Line_Plot_Z_Force_2, '--', color = 'black',linewidth = 2.5)
 
 #ax.legend(frameon=False)
 
 #Animation Section: create the rotation animation and Save .mp4 file
-for angle in range(0, 360):
-    ax.view_init(20, angle)
-    plt.draw()
-    plt.pause(.001)
+#for angle in range(0, 360):
+ #   ax.view_init(20, angle)
+ #   plt.draw()
+ #   plt.pause(.001)
 
-def rotate(angle):
-        ax.view_init(10, azim=angle)
+#def rotate(angle):
+  #      ax.view_init(10, azim=angle)
 
-rot_animation = animation.FuncAnimation(fig, rotate, frames=np.arange(0, 362, 2), interval=250)
+#rot_animation = animation.FuncAnimation(fig, rotate, frames=np.arange(0, 362, 2), interval=250)
 
-Writer = animation.writers['ffmpeg']
-writer = Writer(metadata=dict(artist='Me'), bitrate=-1)
-rot_animation.save("C:/Users/andre/Documents/Mestrado/Projetos Pesquisa/Projeto Marcha Água/Coletas/Data/Planilhas Gráficos Python/Grafico_External_Force_Depth_Velocidade_SURFACE2ºOrder_Video.mp4", writer=writer)
+#Writer = animation.writers['ffmpeg']
+#writer = Writer(metadata=dict(artist='Me'), bitrate=-1)
+#rot_animation.save("C:/Users/andre/Documents/Mestrado/Projetos Pesquisa/Projeto Marcha Água/Coletas/Data/Planilhas Gráficos Python/Grafico_External_Force_Depth_Velocidade_SURFACE2ºOrder_Video.mp4", writer=writer)
 
 
 
